@@ -5,3 +5,4 @@ setup.py
 /dist/
 *.egg-info/
 README.rst
+pip-wheel-metadata/

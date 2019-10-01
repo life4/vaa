@@ -35,8 +35,11 @@ class Simple:
         self.cleaned_data = None
         self.errors = None
 
+        data = self.data
+        if isinstance(data, dict):
+            BorgDict(self.data)
         try:
-            result = self.validator(BorgDict(self.data), **self.kwargs)
+            result = self.validator(data, **self.kwargs)
         except ValidationError as exc:
             result = exc.args[0]
 
