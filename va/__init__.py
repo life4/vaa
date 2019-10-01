@@ -1,3 +1,7 @@
+"""Validators Adapter. The common interface for all validators.
+"""
+
+
 from ._aliases import (
     cerberus,
     django,
@@ -9,6 +13,8 @@ from ._aliases import (
 )
 from ._internal import ValidationError
 
+
+__version__ = '0.1.0'
 
 __all__ = [
     'cerberus',

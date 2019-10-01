@@ -1,0 +1,30 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "va"
+author = "Gram Orsinium"
+author-email = "master_fess@mail.ru"
+home-page = "https://github.com/life4/va"
+
+[tool.flit.metadata.requires-extra]
+tests = [
+  "pytest",
+
+  "cerberus",
+  "django",
+  "djangorestframework",
+  "marshmallow",
+  "pyschemes",
+  "wtforms",
+]
+
+[tool.dephell.main]
+from = {format = "flit", path = "pyproject.toml"}
+to = {format = "setuppy", path = "setup.py"}
+
+[tool.dephell.pytest]
+from = {format = "flit", path = "pyproject.toml"}
+envs = ["main", "tests"]
+command = "python -m pytest tests/"
