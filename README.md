@@ -1,6 +1,6 @@
-# VA
+# VAA
 
-Validators Adapter makes validation by any existing validator with the same interface.
+VAlidators Adapter makes validation by any existing validator with the same interface.
 
 Supported validators:
 
@@ -17,10 +17,10 @@ Supported validators:
 
 ```python
 import marshmallow
-import va
+import vaa
 
 
-@va.marshmallow
+@vaa.marshmallow
 class Scheme(marshmallow.Schema):
   id = marshmallow.fields.Int(required=True)
   name = marshmallow.fields.Str(required=True)
@@ -51,7 +51,7 @@ If you want to do validation with simple function, you can use `va.simple` adapt
 It can return `bool`:
 
 ```python
-@va.simple
+@vaa.simple
 def validate(a, b) -> bool:
   return a > 0 and b > 0
 ```
@@ -59,7 +59,7 @@ def validate(a, b) -> bool:
 Or return message for error:
 
 ```python
-@va.simple
+@vaa.simple
 def validate(a, b) -> bool:
   if a > 0 and b > 0:
     return True
@@ -69,7 +69,7 @@ def validate(a, b) -> bool:
 Or return errors dict:
 
 ```python
-@va.simple
+@vaa.simple
 def validate(a, b) -> bool:
   if a <= 0:
     return {'a': 'should be positive'}
@@ -81,17 +81,17 @@ def validate(a, b) -> bool:
 Or raise `va.ValidationError` with error message or dict:
 
 ```python
-@va.simple
+@vaa.simple
 def validate(a, b) -> bool:
   if a > 0 and b > 0:
       return True
-  raise va.ValidationError('should be positive')
+  raise vaa.ValidationError('should be positive')
 ```
 
 Also, if you want to get the original dict without unpacking it into keyword arguments, do a function that accepts only one `_` argument:
 
 ```python
-@va.simple
+@vaa.simple
 def validate(_):
   return _['a'] > 0 and _['b'] > 0
 ```
@@ -99,7 +99,7 @@ def validate(_):
 In that dict keys can be accessed as attributes:
 
 ```python
-@va.simple
+@vaa.simple
 def validate(_):
   return _.a > 0 and _.b > 0
 ```

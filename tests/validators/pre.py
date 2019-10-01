@@ -1,7 +1,7 @@
 import cerberus
 import wtforms
 
-import va
+import vaa
 
 
 class PreWTForms(wtforms.Form):
@@ -37,6 +37,6 @@ PreCerberus = cerberus.Validator(scheme, purge_unknown=True)
 
 
 prevalidators = [
-    va.wtforms(PreWTForms),
-    va.cerberus(PreCerberus),
+    vaa.wtforms(PreWTForms),
+    vaa.cerberus(PreCerberus),
 ]

@@ -1,6 +1,6 @@
 import pytest
 
-import va
+import vaa
 
 
 def validator_bool_kwargs(a, b):
@@ -22,7 +22,7 @@ def validator_dict_kwargs(a, b):
 def validator_raise_kwargs(a, b):
     if a > 0 and b > 0:
         return True
-    raise va.ValidationError('should be positive')
+    raise vaa.ValidationError('should be positive')
 
 
 def validator_bool_container(_):
@@ -44,13 +44,13 @@ def validator_dict_container(_):
 def validator_raise_container(_):
     if _.a > 0 and _.b > 0:
         return True
-    raise va.ValidationError('should be positive')
+    raise vaa.ValidationError('should be positive')
 
 
 def validator_return_error_container(_):
     if _.a > 0 and _.b > 0:
         return True
-    return va.ValidationError('should be positive')
+    return vaa.ValidationError('should be positive')
 
 
 @pytest.mark.parametrize('validator, errors', [
@@ -66,7 +66,7 @@ def validator_return_error_container(_):
     (validator_return_error_container, {'__all__': 'should be positive'}),
 ])
 def test_simple_validator(validator, errors):
-    wrapped = va.simple(validator, error='PH')
+    wrapped = vaa.simple(validator, error='PH')
 
     v = wrapped({'a': 4, 'b': 7})
     assert v.is_valid() is True

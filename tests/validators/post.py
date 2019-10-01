@@ -1,7 +1,7 @@
 import marshmallow
 import pyschemes
 
-import va
+import vaa
 
 
 class PostMarshmallow(marshmallow.Schema):
@@ -17,6 +17,6 @@ post_pyschemes = pyschemes.Scheme({
 })
 
 postvalidators = [
-    # va.marshmallow(PostMarshmallow),
-    va.pyschemes(post_pyschemes),
+    # vaa.marshmallow(PostMarshmallow),
+    vaa.pyschemes(post_pyschemes),
 ]

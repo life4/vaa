@@ -1,7 +1,7 @@
 import marshmallow
 import rest_framework.serializers
 
-import va
+import vaa
 
 
 class PostMarshmallow(marshmallow.Schema):
@@ -15,6 +15,6 @@ class PostRESTFramework(rest_framework.serializers.Serializer):
 
 
 djpostvalidators = [
-    va.marshmallow(PostMarshmallow),
-    va.restframework(PostRESTFramework),
+    vaa.marshmallow(PostMarshmallow),
+    vaa.restframework(PostRESTFramework),
 ]

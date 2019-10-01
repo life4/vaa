@@ -3,7 +3,7 @@ requires = ["flit"]
 build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
-module = "va"
+module = "vaa"
 author = "Gram Orsinium"
 author-email = "master_fess@mail.ru"
 home-page = "https://github.com/life4/va"
