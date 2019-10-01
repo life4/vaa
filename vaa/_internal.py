@@ -46,17 +46,22 @@ class Simple:
 
         # returned something falsy
         if not result:
-            self.errors = {'__all__': self.error}
+            self.errors = {'__all__': [self.error]}
             return False
 
         # returned error message
         if type(result) is str:
-            self.errors = {'__all__': result}
+            self.errors = {'__all__': [result]}
             return False
 
         # returned dict of errors
         if type(result) is dict:
             self.errors = result
+            return False
+
+        # returned list of errors
+        if isinstance(result, (tuple, list, set)):
+            self.errors = {'__all__': list(result)}
             return False
 
         # returned something truely
