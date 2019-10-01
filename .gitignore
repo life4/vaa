@@ -4,3 +4,4 @@ __pycache__/
 setup.py
 /dist/
 *.egg-info/
+README.rst
