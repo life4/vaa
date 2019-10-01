@@ -6,7 +6,7 @@ build-backend = "flit.buildapi"
 module = "vaa"
 author = "Gram Orsinium"
 author-email = "master_fess@mail.ru"
-home-page = "https://github.com/life4/va"
+home-page = "https://github.com/life4/vaa"
 
 [tool.flit.metadata.requires-extra]
 tests = [
