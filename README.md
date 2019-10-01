@@ -13,6 +13,10 @@ Supported validators:
 | [Django REST Framework](https://www.django-rest-framework.org/) | `va.restframework` |
 | [WTForms](https://wtforms.readthedocs.io/en/stable/) | `va.wtforms` |
 
+```bash
+python3 -m pip install --user vaa
+```
+
 ## Example
 
 ```python
