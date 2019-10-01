@@ -4,10 +4,9 @@ Use this classes as wrappers for non-djburger validators
 """
 
 from ._django_utils import safe_model_to_dict
-from ._interface import IValidator
 
 
-class _BaseWrapper(IValidator):
+class _BaseWrapper:
 
     def __init__(self, validator):
         self.validator = validator
@@ -74,6 +73,13 @@ class Cerberus(_BaseWrapper):
         return result
 
 
+class DummyMultyDict(dict):
+    def getlist(self, name):
+        if name not in self:
+            return []
+        return [self[name]]
+
+
 class WTForms(_BaseWrapper):
     """Wrapper for use WTForms form as validator.
     """
@@ -84,13 +90,15 @@ class WTForms(_BaseWrapper):
             obj = self.validator(data, **kwargs)
         else:
             data = safe_model_to_dict(data)
-            obj = self.validator(data=data, **kwargs)
+            obj = self.validator(DummyMultyDict(data), **kwargs)
 
         # bound methods to obj
         obj.is_valid = obj.validate
         obj.cleaned_data = self.cleaned_data.__get__(obj)
         return obj
 
+    # should be static to be not attached to the current class
+    @staticmethod
     @property
     def cleaned_data(self):
         return self.data

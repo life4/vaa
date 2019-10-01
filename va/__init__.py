@@ -3,6 +3,7 @@ from ._aliases import (
     django,
     marshmallow,
     pyschemes,
+    simple,
     restframework,
     wtforms,
 )
@@ -14,5 +15,6 @@ __all__ = [
     'marshmallow',
     'pyschemes',
     'restframework',
+    'simple',
     'wtforms',
 ]
