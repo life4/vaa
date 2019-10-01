@@ -10,7 +10,7 @@ validators = prevalidators + postvalidators
 @pytest.mark.parametrize('validator', validators)
 def test_valid(validator):
     data = {
-        'name': 'Max',
+        'name': 'Oleg',
         'mail': 'test@example.ru',
         'count': 20,
     }
@@ -22,7 +22,7 @@ def test_valid(validator):
 @pytest.mark.parametrize('validator', validators)
 def test_no_field(validator):
     data = {
-        'name': 'Max',
+        'name': 'Oleg',
         'mail': 'test@example.ru',
     }
     v = validator(data=data)
@@ -33,7 +33,7 @@ def test_no_field(validator):
 @pytest.mark.parametrize('validator', validators)
 def test_invalid_int(validator):
     data = {
-        'name': 'Max',
+        'name': 'Oleg',
         'mail': 'test@example.ru',
         'count': 'lol',
     }
@@ -45,7 +45,7 @@ def test_invalid_int(validator):
 @pytest.mark.parametrize('validator', prevalidators)
 def test_types_converting(validator):
     data = {
-        'name': 'Max',
+        'name': 'Oleg',
         'mail': 'test@example.ru',
         'count': '10',
     }
@@ -59,7 +59,7 @@ def test_types_converting(validator):
 @pytest.mark.parametrize('validator', prevalidators)
 def test_explicit_keys(validator):
     data = {
-        'name': 'Max',
+        'name': 'Oleg',
         'mail': 'test@example.ru',
         'count': 10,
         'junk': 'test',

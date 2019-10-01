@@ -1,24 +1,30 @@
 import inspect
 
 from ._django_utils import safe_model_to_dict
-from ._interface import IValidator
 
 
 class ValidationError(ValueError):
     pass
 
 
-class Simple(IValidator):
+class BorgDict(dict):
+    def __getattr__(self, name: str):
+        if name in self:
+            return self[name]
+        else:
+            raise AttributeError(name)
+
+
+class Simple:
 
     def __init__(self, validator, error='validation error', param='_'):
+        self.error = error
+
         params = inspect.signature(validator).parameters.keys()
         if tuple(params) == (param,):
             self.validator = validator
         else:
-            self.validator = lambda _: validator(**_)
-
-        self.validator = validator
-        self.error = error
+            self.validator = lambda data, **kwargs: validator(**data, **kwargs)
 
     def __call__(self, data, **kwargs):
         self.data = safe_model_to_dict(data)
@@ -30,9 +36,13 @@ class Simple(IValidator):
         self.errors = None
 
         try:
-            result = self.validator(self.data, **self.kwargs)
+            result = self.validator(BorgDict(self.data), **self.kwargs)
         except ValidationError as exc:
             result = exc.args[0]
+
+        # ValidationError was returned instead of raising
+        if type(result) is ValidationError:
+            result = result.args[0]
 
         # returned something falsy
         if not result:

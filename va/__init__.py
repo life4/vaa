@@ -7,6 +7,7 @@ from ._aliases import (
     restframework,
     wtforms,
 )
+from ._internal import ValidationError
 
 
 __all__ = [
@@ -16,5 +17,6 @@ __all__ = [
     'pyschemes',
     'restframework',
     'simple',
+    'ValidationError',
     'wtforms',
 ]
