@@ -1,5 +1,5 @@
 import marshmallow
-import rest_framework
+import rest_framework.serializers
 
 import va
 
@@ -14,7 +14,7 @@ class PostRESTFramework(rest_framework.serializers.Serializer):
     name = rest_framework.serializers.CharField(max_length=20)
 
 
-postvalidators = [
+djpostvalidators = [
     va.marshmallow(PostMarshmallow),
     va.restframework(PostRESTFramework),
 ]

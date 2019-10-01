@@ -17,6 +17,6 @@ post_pyschemes = pyschemes.Scheme({
 })
 
 postvalidators = [
-    va.marshmallow(PostMarshmallow),
+    # va.marshmallow(PostMarshmallow),
     va.pyschemes(post_pyschemes),
 ]

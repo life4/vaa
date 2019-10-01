@@ -118,6 +118,6 @@ class RESTFramework(_BaseWrapper):
     # method binded to wrapped validator
     @staticmethod
     def is_valid(self) -> bool:
-        result = super().is_valid()
+        result = super(self.__class__, self).is_valid()
         self.cleaned_data = self.validated_data
         return result
