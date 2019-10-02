@@ -37,7 +37,7 @@ class Simple:
 
         data = self.data
         if isinstance(data, dict):
-            BorgDict(self.data)
+            data = BorgDict(data)
         try:
             result = self.validator(data, **self.kwargs)
         except ValidationError as exc:
