@@ -28,7 +28,7 @@ class Scheme(marshmallow.Schema):
   id = marshmallow.fields.Int(required=True)
   name = marshmallow.fields.Str(required=True)
 
-scheme_validator = vaa.marshmallow(Scheme)
+SchemeValidator = vaa.marshmallow(Scheme)
 ```
 
 ## Validating data
@@ -36,7 +36,7 @@ scheme_validator = vaa.marshmallow(Scheme)
 All schemes adopted by va has the same interface:
 
 ```python
-scheme = scheme_validator({'id': '1', 'name': 'Oleg'})
+scheme = SchemeValidator({'id': '1', 'name': 'Oleg'})
 scheme.is_valid()  # True
 scheme.cleaned_data
 # {'name': 'Oleg', 'id': 1}
