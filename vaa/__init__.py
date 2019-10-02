@@ -3,13 +3,16 @@
 
 
 from ._aliases import (
-    cerberus,
-    django,
-    marshmallow,
-    pyschemes,
     simple,
-    restframework,
+)
+from ._external import (
     wtforms,
+    restframework,
+    pydantic,
+    pyschemes,
+    marshmallow,
+    django,
+    cerberus,
 )
 from ._internal import ValidationError
 

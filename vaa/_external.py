@@ -2,82 +2,108 @@
 
 Use this classes as wrappers for non-djburger validators
 """
+from typing import Dict, Any, Tuple, Callable, Type, Optional
 
 from ._django_utils import safe_model_to_dict
 
-
-class _BaseWrapper:
-
-    def __init__(self, validator):
-        self.validator = validator
-
-    def __call__(self, data, **kwargs):
-        obj = self.validator(**kwargs)
-        obj.data = safe_model_to_dict(data)
-        # bound method to obj
-        obj.is_valid = self.is_valid.__get__(obj)
-        return obj
+DictStrAny = Dict[str, Any]
+ValidationResult = Tuple[Optional[DictStrAny], Optional[DictStrAny], bool]
+Validator = Callable[[DictStrAny], ValidationResult]
 
 
-class Django(_BaseWrapper):
-    """Wrapper for use Django Form (or ModelForm) as validator.
+class BaseValidator:
     """
-
-    def __call__(self, **kwargs):
-        obj = self.validator(**kwargs)
-        return obj
-
-
-class Marshmallow(_BaseWrapper):
-    """Wrapper for use marshmallow scheme as validator.
+    Base class for validators
+    Do not use it directly, instead use vaa.{validator_type} function to construct one
     """
+    cleaned_data: DictStrAny
+    errors: DictStrAny
+    valid: bool
 
-    # method binded to wrapped walidator
+    def __init__(self, data, **kwargs):
+        self.data = data
+        cleaned_data, errors, is_valid = self.validator(self.data, **kwargs)
+        object.__setattr__(self, 'cleaned_data', cleaned_data)
+        object.__setattr__(self, 'errors', errors)
+        object.__setattr__(self, 'valid', is_valid)
+
+    def is_valid(self) -> bool:
+        return self.valid
+
+    def __setattr__(self, name, value):
+        if name in ('cleaned_data', 'errors', '_is_valid'):
+            raise AttributeError('Cannot set attributes cleaned_data or errors')
+        object.__setattr__(self, name, value)
+
     @staticmethod
-    def is_valid(self) -> bool:
-        from marshmallow import ValidationError
+    def validator(data, **kwargs) -> ValidationResult:
+        """This method dynamically created on wrapping a model
+           It fits only one type of validator and can not be used for another
+        """
+        raise NotImplementedError()
 
-        self.cleaned_data = None
-        self.errors = None
+
+ValidatorType = Type[BaseValidator]
+
+
+def create_validator(model_name, validator: Validator, validator_class=BaseValidator) -> ValidatorType:
+    """Dynamically creates new validator type for current model/form/schema
+    """
+    return type(f'{model_name}Validator', (validator_class,), dict(validator=staticmethod(validator)))
+
+
+def django(model, **kwargs) -> ValidatorType:
+    """Creates validator from django Form
+    """
+    def validate(data, **params) -> ValidationResult:
+        m = model(data, **params)
+        result = m.is_valid()
+        return m.cleaned_data, m.errors, result
+
+    return create_validator(model.__name__, validate, **kwargs)
+
+
+def marshmallow(model, **kwargs) -> ValidatorType:
+    """Creates validator from Django Form
+    """
+    from marshmallow import ValidationError
+
+    def validate(data, **_) -> ValidationResult:
+        cleaned_data = None
+        errors = None
         try:
-            self.cleaned_data = self.load(self.data)
+            cleaned_data = model().load(data)
         except ValidationError as exc:
-            self.errors = exc.messages
-        return not self.errors
+            errors = exc.messages
+
+        return cleaned_data, errors, not errors
+
+    return create_validator(model.__name__, validate, **kwargs)
 
 
-class PySchemes(_BaseWrapper):
-    """Wrapper for use PySchemes as validator.
+def pyschemes(scheme, **kwargs) -> ValidatorType:
+    """Creates validator from PySchemes scheme.
     """
-
-    def __call__(self, data, **kwargs):
-        self.data = data
-        return self
-
-    def is_valid(self) -> bool:
-        self.cleaned_data = None
-        self.errors = None
+    def validate(data, **_) -> ValidationResult:
+        cleaned_data = None
+        errors = None
         try:
-            self.cleaned_data = self.validator.validate(self.data)
+            cleaned_data = scheme.validate(data)
         except Exception as e:
-            self.errors = {'__all__': list(e.args)}
-            return False
-        return True
+            errors = {'__all__': list(e.args)}
+        return cleaned_data, errors, not errors
+
+    return create_validator(type(scheme).__name__, validate, **kwargs)
 
 
-class Cerberus(_BaseWrapper):
-    """Wrapper for use Cerberus as validator.
+def cerberus(model, **kwargs) -> ValidatorType:
+    """Creates validator from cerberus model
     """
+    def validate(data, **_) -> ValidationResult:
+        result = model.validate(data)
+        return model.document, model.errors, result
 
-    def __call__(self, data, **kwargs):
-        self.data = data
-        return self
-
-    def is_valid(self) -> bool:
-        result = self.validator.validate(self.data)
-        self.cleaned_data = self.validator.document
-        self.errors = self.validator.errors
-        return result
+    return create_validator(type(model).__name__, validate, **kwargs)
 
 
 class DummyMultyDict(dict):
@@ -87,44 +113,57 @@ class DummyMultyDict(dict):
         return [self[name]]
 
 
-class WTForms(_BaseWrapper):
-    """Wrapper for use WTForms form as validator.
+def wtforms(form, **kwargs) -> ValidatorType:
+    """Creates validator from WTForm
     """
-
-    def __call__(self, data, **kwargs):
+    def validate(data, **params) -> ValidationResult:
         # if MultiDict passed
         if hasattr(data, 'getlist'):
-            obj = self.validator(data, **kwargs)
+            obj = form(data, **params)
         else:
             data = safe_model_to_dict(data)
-            obj = self.validator(DummyMultyDict(data), **kwargs)
+            obj = form(DummyMultyDict(data), **params)
+        result = obj.validate()
+        return obj.data, obj.errors, result
 
-        # bound methods to obj
-        obj.is_valid = obj.validate
-        obj.cleaned_data = self.cleaned_data.__get__(obj)
-        return obj
-
-    # should be static to be not attached to the current class
-    @staticmethod
-    @property
-    def cleaned_data(self):
-        return self.data
+    return create_validator(form.__name__, validate, **kwargs)
 
 
-class RESTFramework(_BaseWrapper):
-    """Wrapper for use Django REST Framework serializer as validator.
+def restframework(form, **kwargs) -> ValidatorType:
+    """Creates validator from Django REST Framework serializer
     """
-
-    def __call__(self, data, **kwargs):
+    def validate(data, **params) -> ValidationResult:
         data = safe_model_to_dict(data)
-        obj = self.validator(data=data, **kwargs)
-        # bound method to obj
-        obj.is_valid = self.is_valid.__get__(obj)
-        return obj
+        obj = form(data=data, **params)
+        result = obj.is_valid()
+        return obj.validated_data, obj.errors, result
 
-    # method binded to wrapped validator
-    @staticmethod
-    def is_valid(self) -> bool:
-        result = super(self.__class__, self).is_valid()
-        self.cleaned_data = self.validated_data
-        return result
+    return create_validator(form.__name__, validate, **kwargs)
+
+
+def _format_pydantic_exc(exc):
+    errors = {}
+    for e in exc.errors():
+        location = errors
+        *path, cause = e.pop('loc')
+        for field in path:
+            location = location.setdefault(field, {})
+        location[cause] = e
+    return errors
+
+
+def pydantic(model, **kwargs) -> ValidatorType:
+    """Creates validator from Pydantic BaseModel"""
+    from pydantic import ValidationError
+
+    def validate(data, **params) -> ValidationResult:
+        try:
+            cleaned_data = model(**data).dict(**params)
+            errors = None
+        except ValidationError as exc:
+            cleaned_data = None
+            errors = _format_pydantic_exc(exc)
+        return cleaned_data, errors, not errors
+
+    return create_validator(model.__name__, validate, **kwargs)
+n

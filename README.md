@@ -24,10 +24,11 @@ import marshmallow
 import vaa
 
 
-@vaa.marshmallow
 class Scheme(marshmallow.Schema):
   id = marshmallow.fields.Int(required=True)
   name = marshmallow.fields.Str(required=True)
+
+scheme_validator = vaa.marshmallow(Scheme)
 ```
 
 ## Validating data
@@ -35,14 +36,14 @@ class Scheme(marshmallow.Schema):
 All schemes adopted by va has the same interface:
 
 ```python
-validator = Scheme({'id': '1', 'name': 'Oleg'})
-validator.is_valid()  # True
-validator.cleaned_data
+scheme = scheme_validator({'id': '1', 'name': 'Oleg'})
+scheme.is_valid()  # True
+scheme.cleaned_data
 # {'name': 'Oleg', 'id': 1}
 
-validator = Scheme({'id': 'no', 'name': 'Oleg'})
-validator.is_valid()  # False
-validator.errors
+scheme = Scheme({'id': 'no', 'name': 'Oleg'})
+scheme.is_valid()  # False
+scheme.errors
 # {'id': ['Not a valid integer.']}
 ```
 

@@ -1,4 +1,5 @@
 import marshmallow
+import pydantic
 import pyschemes
 
 import vaa
@@ -10,6 +11,12 @@ class PostMarshmallow(marshmallow.Schema):
     count = marshmallow.fields.Int(required=True)
 
 
+class PostPydantic(pydantic.BaseModel):
+    name: str
+    mail: str
+    count: int
+
+
 post_pyschemes = pyschemes.Scheme({
     'name': str,
     'mail': str,
@@ -19,4 +26,5 @@ post_pyschemes = pyschemes.Scheme({
 postvalidators = [
     # vaa.marshmallow(PostMarshmallow),
     vaa.pyschemes(post_pyschemes),
+    vaa.pydantic(PostPydantic)
 ]
