@@ -35,8 +35,19 @@ class Marshmallow(_BaseWrapper):
     # method binded to wrapped walidator
     @staticmethod
     def is_valid(self) -> bool:
-        self.cleaned_data, self.errors = self.load(self.data)
-        return not self.errors
+        from marshmallow import ValidationError
+
+        try:
+            self.cleaned_data = self.load(self.data)
+        except ValidationError as exc:
+            # invalid
+            self.cleaned_data = exc.valid_data
+            self.errors = exc.messages
+            return False
+
+        # valid
+        self.errors = None
+        return True
 
 
 class PySchemes(_BaseWrapper):
