@@ -25,11 +25,12 @@ classifiers = [
 [tool.flit.metadata.requires-extra]
 tests = [
   "pytest",
-
+]
+validators = [
   "cerberus",
   "django",
   "djangorestframework",
-  "marshmallow",
+  "marshmallow>=3.0.1",
   "pyschemes",
   "wtforms",
 ]
@@ -40,5 +41,5 @@ to = {format = "setuppy", path = "setup.py"}
 
 [tool.dephell.pytest]
 from = {format = "flit", path = "pyproject.toml"}
-envs = ["main", "tests"]
+envs = ["main", "tests", "validators"]
 command = "python -m pytest tests/"
