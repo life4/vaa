@@ -153,17 +153,16 @@ def _format_pydantic_exc(exc):
 
 
 def pydantic(model, **kwargs) -> ValidatorType:
-    """Creates validator from Pydantic BaseModel"""
-    from pydantic import ValidationError
+    """Creates validator from Pydantic BaseModel
+    """
+    from pydantic import validate_model
 
-    def validate(data, **params) -> ValidationResult:
-        try:
-            cleaned_data = model(**data).dict(**params)
-            errors = None
-        except ValidationError as exc:
-            cleaned_data = None
+    def validate(data, **_) -> ValidationResult:
+        errors = None
+        cleaned_data, _, exc = validate_model(model, data, raise_exc=False)
+        if exc:
             errors = _format_pydantic_exc(exc)
+            cleaned_data = None
         return cleaned_data, errors, not errors
 
     return create_validator(model.__name__, validate, **kwargs)
-n
