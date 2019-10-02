@@ -37,17 +37,13 @@ class Marshmallow(_BaseWrapper):
     def is_valid(self) -> bool:
         from marshmallow import ValidationError
 
+        self.cleaned_data = None
+        self.errors = None
         try:
             self.cleaned_data = self.load(self.data)
         except ValidationError as exc:
-            # invalid
-            self.cleaned_data = exc.valid_data
             self.errors = exc.messages
-            return False
-
-        # valid
-        self.errors = None
-        return True
+        return not self.errors
 
 
 class PySchemes(_BaseWrapper):
