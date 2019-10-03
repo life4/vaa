@@ -15,7 +15,7 @@ def test_valid(validator):
         'count': 20,
     }
     v = validator(data=data)
-    assert v.is_valid() is True
+    assert v.is_valid is True
     assert v.cleaned_data == data
 
 
@@ -26,7 +26,7 @@ def test_no_field(validator):
         'mail': 'test@example.ru',
     }
     v = validator(data=data)
-    assert v.is_valid() is False
+    assert v.is_valid is False
     assert v.errors
 
 
@@ -38,7 +38,7 @@ def test_invalid_int(validator):
         'count': 'lol',
     }
     v = validator(data=data)
-    assert v.is_valid() is False
+    assert v.is_valid is False
     assert v.errors
 
 
@@ -50,7 +50,7 @@ def test_types_converting(validator):
         'count': '10',
     }
     v = validator(request=True, data=data)
-    assert v.is_valid() is True
+    assert v.is_valid is True
     assert not v.errors
     assert 'count' in v.cleaned_data
     assert v.cleaned_data['count'] == 10
@@ -65,6 +65,6 @@ def test_explicit_keys(validator):
         'junk': 'test',
     }
     v = validator(request=True, data=data)
-    assert v.is_valid() is True
+    assert v.is_valid is True
     assert not v.errors
     assert 'junk' not in v.cleaned_data
