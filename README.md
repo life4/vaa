@@ -6,12 +6,13 @@ Supported validators:
 
 | validator | adapter |
 | --------- | ------- |
-| [Cerberus](http://docs.python-cerberus.org/en/stable/) | `va.cerberus` |
-| [Django Forms](https://docs.djangoproject.com/en/2.2/topics/forms/) | `va.django` |
-| [Marshmallow](https://marshmallow.readthedocs.io/en/stable/) | `va.marshmallow` |
-| [PySchemes](https://github.com/spy16/pyschemes) | `va.pyschemes` |
-| [Django REST Framework](https://www.django-rest-framework.org/) | `va.restframework` |
-| [WTForms](https://wtforms.readthedocs.io/en/stable/) | `va.wtforms` |
+| [Cerberus](http://docs.python-cerberus.org/en/stable/) | `vaa.cerberus` |
+| [Django Forms](https://docs.djangoproject.com/en/2.2/topics/forms/) | `vaa.django` |
+| [Marshmallow](https://marshmallow.readthedocs.io/en/stable/) | `vaa.marshmallow` |
+| [Pydantic](https://pydantic-docs.helpmanual.io/) | `vaa.pydantic` |
+| [PySchemes](https://github.com/spy16/pyschemes) | `vaa.pyschemes` |
+| [Django REST Framework](https://www.django-rest-framework.org/) | `vaa.restframework` |
+| [WTForms](https://wtforms.readthedocs.io/en/stable/) | `vaa.wtforms` |
 
 ```bash
 python3 -m pip install --user vaa
@@ -33,7 +34,7 @@ SchemeValidator = vaa.marshmallow(Scheme)
 
 ## Validating data
 
-All schemes adopted by va has the same interface:
+All schemes adopted by `vaa` has the same interface:
 
 ```python
 scheme = SchemeValidator({'id': '1', 'name': 'Oleg'})
