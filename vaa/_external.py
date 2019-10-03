@@ -2,27 +2,33 @@
 
 Use this classes as wrappers for non-djburger validators
 """
-from typing import Dict, Any, Tuple, Callable, Type, Optional
+from typing import Dict, Any, Tuple, Callable, Type, Optional, Union, List, TypeVar
 
 from ._django_utils import safe_model_to_dict
 
 DictStrAny = Dict[str, Any]
-ValidationResult = Tuple[Optional[DictStrAny], Optional[DictStrAny], bool]
-Validator = Callable[[DictStrAny], ValidationResult]
+ErrorsDict = Dict[str, Union[List[str], DictStrAny]]
+ValidationResult = Tuple[Optional[DictStrAny], Optional[ErrorsDict], bool]
+ValidateCallable = Callable[[DictStrAny], ValidationResult]
+Validator = TypeVar('Validator')
 
 
-class BaseValidator:
+class Vaa:
     """
     Base class for validators
     Do not use it directly, instead use vaa.{validator_type} function to construct one
     """
+    __slots__ = ('validator', 'data', 'cleaned_data', 'errors', 'valid')
+
+    data: DictStrAny
     cleaned_data: DictStrAny
-    errors: DictStrAny
+    errors: ErrorsDict
     valid: bool
+    validator: Validator
 
     def __init__(self, data, **kwargs):
-        self.data = data
-        cleaned_data, errors, is_valid = self.validator(self.data, **kwargs)
+        cleaned_data, errors, is_valid = self.validate(data, **kwargs)
+        object.__setattr__(self, 'data', data)
         object.__setattr__(self, 'cleaned_data', cleaned_data)
         object.__setattr__(self, 'errors', errors)
         object.__setattr__(self, 'valid', is_valid)
@@ -31,39 +37,45 @@ class BaseValidator:
         return self.valid
 
     def __setattr__(self, name, value):
-        if name in ('cleaned_data', 'errors', '_is_valid'):
-            raise AttributeError('Cannot set attributes cleaned_data or errors')
+        if name in self.__slots__:
+            raise AttributeError(f'Cannot set protected attribute {name}')
         object.__setattr__(self, name, value)
 
     @staticmethod
-    def validator(data, **kwargs) -> ValidationResult:
+    def validate(data, **kwargs) -> ValidationResult:
         """This method dynamically created on wrapping a model
            It fits only one type of validator and can not be used for another
         """
         raise NotImplementedError()
 
 
-ValidatorType = Type[BaseValidator]
+VaaType = Type[Vaa]
 
 
-def create_validator(model_name, validator: Validator, validator_class=BaseValidator) -> ValidatorType:
-    """Dynamically creates new validator type for current model/form/schema
+def create_validator(
+        validate: ValidateCallable,
+        validator: Validator,
+        base_class: VaaType = Vaa
+) -> VaaType:
+    """Dynamically creates new validator type for current model/form/scheme
     """
-    return type(f'{model_name}Validator', (validator_class,), dict(validator=staticmethod(validator)))
+    name_prefix = validator.__name__ if isinstance(validator, type) else type(validator).__name__
+    return type(f'{name_prefix}Validator', (base_class,), dict(validate=staticmethod(validate), validator=validator))
 
 
-def django(model, **kwargs) -> ValidatorType:
+def django(model: Validator, **kwargs) -> VaaType:
     """Creates validator from django Form
     """
+
     def validate(data, **params) -> ValidationResult:
         m = model(data, **params)
         result = m.is_valid()
         return m.cleaned_data, m.errors, result
 
-    return create_validator(model.__name__, validate, **kwargs)
+    return create_validator(validate, model, **kwargs)
 
 
-def marshmallow(model, **kwargs) -> ValidatorType:
+def marshmallow(model: Validator, **kwargs) -> VaaType:
     """Creates validator from Django Form
     """
     from marshmallow import ValidationError
@@ -78,12 +90,13 @@ def marshmallow(model, **kwargs) -> ValidatorType:
 
         return cleaned_data, errors, not errors
 
-    return create_validator(model.__name__, validate, **kwargs)
+    return create_validator(validate, model, **kwargs)
 
 
-def pyschemes(scheme, **kwargs) -> ValidatorType:
+def pyschemes(scheme: Validator, **kwargs) -> VaaType:
     """Creates validator from PySchemes scheme.
     """
+
     def validate(data, **_) -> ValidationResult:
         cleaned_data = None
         errors = None
@@ -93,17 +106,18 @@ def pyschemes(scheme, **kwargs) -> ValidatorType:
             errors = {'__all__': list(e.args)}
         return cleaned_data, errors, not errors
 
-    return create_validator(type(scheme).__name__, validate, **kwargs)
+    return create_validator(validate, scheme, **kwargs)
 
 
-def cerberus(model, **kwargs) -> ValidatorType:
+def cerberus(model: Validator, **kwargs) -> VaaType:
     """Creates validator from cerberus model
     """
+
     def validate(data, **_) -> ValidationResult:
         result = model.validate(data)
         return model.document, model.errors, result
 
-    return create_validator(type(model).__name__, validate, **kwargs)
+    return create_validator(validate, model, **kwargs)
 
 
 class DummyMultyDict(dict):
@@ -113,9 +127,10 @@ class DummyMultyDict(dict):
         return [self[name]]
 
 
-def wtforms(form, **kwargs) -> ValidatorType:
+def wtforms(form: Validator, **kwargs) -> VaaType:
     """Creates validator from WTForm
     """
+
     def validate(data, **params) -> ValidationResult:
         # if MultiDict passed
         if hasattr(data, 'getlist'):
@@ -126,19 +141,20 @@ def wtforms(form, **kwargs) -> ValidatorType:
         result = obj.validate()
         return obj.data, obj.errors, result
 
-    return create_validator(form.__name__, validate, **kwargs)
+    return create_validator(validate, form, **kwargs)
 
 
-def restframework(form, **kwargs) -> ValidatorType:
+def restframework(form: Validator, **kwargs) -> VaaType:
     """Creates validator from Django REST Framework serializer
     """
+
     def validate(data, **params) -> ValidationResult:
         data = safe_model_to_dict(data)
         obj = form(data=data, **params)
         result = obj.is_valid()
         return obj.validated_data, obj.errors, result
 
-    return create_validator(form.__name__, validate, **kwargs)
+    return create_validator(validate, form, **kwargs)
 
 
 def _format_pydantic_exc(exc):
@@ -152,7 +168,7 @@ def _format_pydantic_exc(exc):
     return errors
 
 
-def pydantic(model, **kwargs) -> ValidatorType:
+def pydantic(model: Validator, **kwargs) -> VaaType:
     """Creates validator from Pydantic BaseModel
     """
     from pydantic import validate_model
@@ -165,4 +181,4 @@ def pydantic(model, **kwargs) -> ValidatorType:
             cleaned_data = None
         return cleaned_data, errors, not errors
 
-    return create_validator(model.__name__, validate, **kwargs)
+    return create_validator(validate, model, **kwargs)
