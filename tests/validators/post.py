@@ -16,7 +16,12 @@ post_pyschemes = pyschemes.Scheme({
     'count': int,
 })
 
+postmodels = [
+    PostMarshmallow,
+    post_pyschemes,
+]
+
 postvalidators = [
-    # vaa.marshmallow(PostMarshmallow),
+    vaa.marshmallow(PostMarshmallow),
     vaa.pyschemes(post_pyschemes),
 ]

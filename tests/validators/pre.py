@@ -36,6 +36,11 @@ scheme = dict(
 PreCerberus = cerberus.Validator(scheme, purge_unknown=True)
 
 
+premodels = [
+    PreWTForms,
+    PreCerberus,
+]
+
 prevalidators = [
     vaa.wtforms(PreWTForms),
     vaa.cerberus(PreCerberus),
