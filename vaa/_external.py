@@ -43,6 +43,12 @@ class Marshmallow(_BaseWrapper):
             self.cleaned_data = self.load(self.data)
         except ValidationError as exc:
             self.errors = exc.messages
+
+        # marshmallow 2
+        if hasattr(self.cleaned_data, 'errors'):
+            self.errors = self.cleaned_data.errors
+            self.cleaned_data = self.cleaned_data.data
+
         return not self.errors
 
 
