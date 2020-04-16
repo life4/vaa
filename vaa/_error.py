@@ -9,6 +9,22 @@ class Error:
     def __str__(self):
         return self.message
 
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        if self.message != other.message:
+            return False
+        if self.field != other.field:
+            return False
+        return True
+
+    def __repr__(self):
+        return '{name}(message={message!r}, field={field!r})'.format(
+            name=type(self).__name__,
+            message=self.message,
+            field=self.field,
+        )
+
     @classmethod
     def parse(cls, errors, prefix: str = None) -> List['Error']:
         if not errors:
@@ -32,7 +48,7 @@ class Error:
             for field, message in errors.items():
                 if prefix:
                     field = prefix + '.' + field
-                result.append(cls.parse(errors=message, prefix=field))
+                result.extend(cls.parse(errors=message, prefix=field))
             return result
 
         raise TypeError('cannot parse errors')
