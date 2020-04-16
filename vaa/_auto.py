@@ -1,38 +1,52 @@
-import importlib
-import logging
+from contextlib import suppress
+from importlib import import_module
+from inspect import isfunction
+from logging import getLogger
+from typing import Dict
 
-from . import _external
+from . import _aliases
+from ._cached_property import cached_property
 
-logger = logging.getLogger('vaa')
 
-SUPPORTED_VALIDATORS = {
-    'cerberus.Validator': _external.Cerberus,
-    'django.forms.Form': _external.Django,
-    'marshmallow.Schema': _external.Marshmallow,
-    'pyschemes.Scheme': _external.PySchemes,
-    'rest_framework.serializers.Serializer': _external.RESTFramework,
-    'wtforms.Form': _external.WTForms,
+WRAPPERS = {
+    'cerberus.Validator': _aliases.cerberus,
+    'django.forms.Form': _aliases.django,
+    'marshmallow.Schema': _aliases.marshmallow,
+    'pyschemes.Scheme': _aliases.pyschemes,
+    'rest_framework.serializers.Serializer': _aliases.restframework,
+    'wtforms.Form': _aliases.wtforms,
 }
 
 
-def get_from(validator):
-    for v, wrapper in available_validators.items():
-        if isinstance(validator, v) or (isinstance(validator, type) and issubclass(validator, v)):
-            return wrapper(validator)
-    raise TypeError(f'No wrapper found for {validator}.')
+class Validators:
+    logger = getLogger('vaa')
+
+    def __init__(self, wrappers: Dict[str, type]):
+        self._wrappers = wrappers
+
+    def wrap(self, validator):
+        for import_path, validator_class in self._validators.items():
+            if isinstance(validator, validator_class):
+                wrapper = self._wrappers[import_path]
+                return wrapper(validator)
+            if isinstance(validator, type) and issubclass(validator, validator_class):
+                wrapper = self._wrappers[import_path]
+                return wrapper(validator)
+
+        if isfunction(validator):
+            return _aliases.simple(validator)
+        raise TypeError('no wrapper found')
+
+    @cached_property
+    def _validators(self):
+        validators = dict()
+        for import_path in self._wrappers:
+            with suppress(ImportError):
+                module_name, class_name = import_path.rsplit('.', 1)
+                module = import_module(module_name)
+                validators[import_path] = getattr(module, class_name)
+        self.logger.debug('validators found', extra=dict(validators=list(validators)))
+        return validators
 
 
-def _get_available_validators():
-    for validator, wrapper in SUPPORTED_VALIDATORS.items():
-        try:
-            module, validator = validator.rsplit('.', 1)
-            module = importlib.import_module(module)
-            available_validators[getattr(module, validator)] = wrapper
-        except ImportError:
-            pass
-    logger.debug(f'Found {len(available_validators)} validators: {list(available_validators)}')
-
-
-if 'available_validators' not in globals():
-    available_validators = {}
-    _get_available_validators()
+validators = Validators(wrappers=WRAPPERS)

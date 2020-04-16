@@ -14,12 +14,12 @@ def test_auto(model):
         'mail': 'test@example.ru',
         'count': 20,
     }
-    validator = vaa.get_from(model)
+    validator = vaa.wrap(model)
     v = validator(data=data)
     assert v.is_valid() is True
     assert v.cleaned_data == data
 
 
 def test_wrong_model():
-    with pytest.raises(TypeError, match="No wrapper found for <class 'object'>."):
-        vaa.get_from(object)
+    with pytest.raises(TypeError, match="no wrapper found"):
+        vaa.wrap(object)

@@ -23,7 +23,6 @@ python3 -m pip install --user vaa
 import marshmallow
 import vaa
 
-
 @vaa.marshmallow
 class Scheme(marshmallow.Schema):
   id = marshmallow.fields.Int(required=True)
@@ -32,7 +31,7 @@ class Scheme(marshmallow.Schema):
 
 ## Validating data
 
-All schemes adopted by va has the same interface:
+All schemes adopted by vaa has the same interface:
 
 ```python
 validator = Scheme({'id': '1', 'name': 'Oleg'})
@@ -46,7 +45,7 @@ validator.errors
 # {'id': ['Not a valid integer.']}
 ```
 
-If error isn't for specific field, iw will be in `__all__` key.
+If and error isn't for a specific field, it will be in `__all__` key.
 
 ## Simple scheme
 
@@ -109,3 +108,11 @@ def validate(_):
 ```
 
 Choose the best way and follow it. Avoid mixing them in one project.
+
+## Unknown scheme
+
+If you're making a library that should accept any validator without explicit vaa usage, use `vaa.wrap`:
+
+```python
+
+```
