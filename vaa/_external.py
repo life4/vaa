@@ -4,6 +4,7 @@ Use this classes as wrappers for non-djburger validators
 """
 
 from ._django_utils import safe_model_to_dict
+from ._error import Error
 
 
 class BaseWrapper:
@@ -42,11 +43,11 @@ class Marshmallow(BaseWrapper):
         try:
             self.cleaned_data = self.load(self.data)
         except ValidationError as exc:
-            self.errors = exc.messages
+            self.errors = Error.parse(exc.messages)
 
         # marshmallow 2
         if hasattr(self.cleaned_data, 'errors'):
-            self.errors = self.cleaned_data.errors
+            self.errors = Error.parse(self.cleaned_data.errors)
             self.cleaned_data = self.cleaned_data.data
 
         return not self.errors
@@ -66,7 +67,7 @@ class PySchemes(BaseWrapper):
         try:
             self.cleaned_data = self.validator.validate(self.data)
         except Exception as e:
-            self.errors = {'__all__': list(e.args)}
+            self.errors = Error.parse(e.args)
             return False
         return True
 
@@ -82,7 +83,7 @@ class Cerberus(BaseWrapper):
     def is_valid(self) -> bool:
         result = self.validator.validate(self.data)
         self.cleaned_data = self.validator.document
-        self.errors = self.validator.errors
+        self.errors = Error.parse(self.validator.errors)
         return result
 
 
