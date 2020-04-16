@@ -60,6 +60,7 @@ def validator_return_error_container(_):
 
 
 @pytest.mark.parametrize('validator, errors', [
+    (lambda a, b: a > 0 and b > 0, [vaa.Error(message='PH')]),
     (validator_bool_kwargs, [vaa.Error(message='PH')]),
     (validator_string_kwargs, [vaa.Error(message='should be positive')]),
     (validator_list_kwargs, [vaa.Error(message='should be'), vaa.Error(message='positive')]),
