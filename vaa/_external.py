@@ -4,6 +4,7 @@ Use this classes as wrappers for non-djburger validators
 """
 
 from ._django_utils import safe_model_to_dict
+from ._error import Error
 
 
 class BaseWrapper:
@@ -42,11 +43,11 @@ class Marshmallow(BaseWrapper):
         try:
             self.cleaned_data = self.load(self.data)
         except ValidationError as exc:
-            self.errors = exc.messages
+            self.errors = Error.parse(exc.messages)
 
         # marshmallow 2
         if hasattr(self.cleaned_data, 'errors'):
-            self.errors = self.cleaned_data.errors
+            self.errors = Error.parse(self.cleaned_data.errors)
             self.cleaned_data = self.cleaned_data.data
 
         return not self.errors
