@@ -43,7 +43,7 @@ validator.is_valid()    # False
 validator.errors        # {'id': ['Not a valid integer.']}
 ```
 
-If and error isn't for a specific field, it will be in `__all__` key.
+If an error isn't for a specific field, it will be in `__all__` key.
 
 ## Simple scheme
 
