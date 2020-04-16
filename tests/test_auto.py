@@ -21,5 +21,5 @@ def test_auto(model):
 
 
 def test_wrong_model():
-    with pytest.raises(TypeError, match="no wrapper found"):
+    with pytest.raises(TypeError, match='no wrapper found'):
         vaa.wrap(object)
