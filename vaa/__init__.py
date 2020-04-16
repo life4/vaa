@@ -11,7 +11,7 @@ from ._aliases import (
     restframework,
     wtforms,
 )
-from ._auto import get_from
+from ._auto import validators
 from ._internal import ValidationError
 
 
@@ -28,3 +28,6 @@ __all__ = [
     'ValidationError',
     'wtforms',
 ]
+
+
+wrap = validators.wrap
