@@ -38,6 +38,7 @@ validators = [
 [tool.dephell.main]
 from = {format = "flit", path = "pyproject.toml"}
 to = {format = "setuppy", path = "setup.py"}
+tag = "v."
 
 [tool.dephell.pytest]
 from = {format = "flit", path = "pyproject.toml"}
