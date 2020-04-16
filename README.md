@@ -35,14 +35,12 @@ All schemes adopted by vaa has the same interface:
 
 ```python
 validator = Scheme({'id': '1', 'name': 'Oleg'})
-validator.is_valid()  # True
-validator.cleaned_data
-# {'name': 'Oleg', 'id': 1}
+validator.is_valid()    # True
+validator.cleaned_data  # {'name': 'Oleg', 'id': 1}
 
 validator = Scheme({'id': 'no', 'name': 'Oleg'})
-validator.is_valid()  # False
-validator.errors
-# {'id': ['Not a valid integer.']}
+validator.is_valid()    # False
+validator.errors        # {'id': ['Not a valid integer.']}
 ```
 
 If and error isn't for a specific field, it will be in `__all__` key.
@@ -114,5 +112,12 @@ Choose the best way and follow it. Avoid mixing them in one project.
 If you're making a library that should accept any validator without explicit vaa usage, use `vaa.wrap`:
 
 ```python
+class Scheme(marshmallow.Schema):
+  id = marshmallow.fields.Int(required=True)
+  name = marshmallow.fields.Str(required=True)
 
+validator = vaa.wrap(Scheme)({'id': 'no', 'name': 'Oleg'})
+validator = Scheme({'id': 'no', 'name': 'Oleg'})
+validator.is_valid()    # False
+validator.errors        # {'id': ['Not a valid integer.']}
 ```

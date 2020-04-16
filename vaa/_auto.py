@@ -24,7 +24,7 @@ class Validators:
     def __init__(self, wrappers: Dict[str, type]):
         self._wrappers = wrappers
 
-    def wrap(self, validator):
+    def wrap(self, validator, simple: bool = True):
         for import_path, validator_class in self._validators.items():
             if isinstance(validator, validator_class):
                 wrapper = self._wrappers[import_path]
@@ -33,7 +33,7 @@ class Validators:
                 wrapper = self._wrappers[import_path]
                 return wrapper(validator)
 
-        if isfunction(validator):
+        if simple and isfunction(validator):
             return _aliases.simple(validator)
         raise TypeError('no wrapper found')
 
