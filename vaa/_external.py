@@ -67,7 +67,7 @@ class PySchemes(BaseWrapper):
         try:
             self.cleaned_data = self.validator.validate(self.data)
         except Exception as e:
-            self.errors = {'__all__': list(e.args)}
+            self.errors = Error.parse(e.args)
             return False
         return True
 
@@ -83,7 +83,7 @@ class Cerberus(BaseWrapper):
     def is_valid(self) -> bool:
         result = self.validator.validate(self.data)
         self.cleaned_data = self.validator.document
-        self.errors = self.validator.errors
+        self.errors = Error.parse(self.validator.errors)
         return result
 
 
