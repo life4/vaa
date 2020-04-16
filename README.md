@@ -40,10 +40,8 @@ validator.cleaned_data  # {'name': 'Oleg', 'id': 1}
 
 validator = Scheme({'id': 'no', 'name': 'Oleg'})
 validator.is_valid()    # False
-validator.errors        # {'id': ['Not a valid integer.']}
+validator.errors        # [Error(message='Not a valid integer.', field='id')]
 ```
-
-If an error isn't for a specific field, it will be in `__all__` key.
 
 ## Simple scheme
 
@@ -119,5 +117,5 @@ class Scheme(marshmallow.Schema):
 validator = vaa.wrap(Scheme)({'id': 'no', 'name': 'Oleg'})
 validator = Scheme({'id': 'no', 'name': 'Oleg'})
 validator.is_valid()    # False
-validator.errors        # {'id': ['Not a valid integer.']}
+validator.errors        # [Error(message='Not a valid integer.', field='id')]
 ```
