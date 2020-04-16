@@ -22,4 +22,5 @@ def test_invalid_name():
     v = Scheme(data)
     assert v.is_valid() is False
     assert v.cleaned_data is None
-    assert v.errors == {'mail': ['Not a valid email address.']}
+    error = vaa.Error(field='mail', message='Not a valid email address.')
+    assert v.errors == [error]

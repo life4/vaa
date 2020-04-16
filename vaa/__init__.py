@@ -12,6 +12,7 @@ from ._aliases import (
     wtforms,
 )
 from ._auto import validators
+from ._error import Error
 from ._internal import ValidationError
 
 
@@ -20,13 +21,15 @@ __version__ = '0.2.0'
 __all__ = [
     'cerberus',
     'django',
-    'get_from',
     'marshmallow',
     'pyschemes',
     'restframework',
     'simple',
-    'ValidationError',
     'wtforms',
+
+    'Error',
+    'ValidationError',
+    'wrap',
 ]
 
 

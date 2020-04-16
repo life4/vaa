@@ -60,17 +60,18 @@ def validator_return_error_container(_):
 
 
 @pytest.mark.parametrize('validator, errors', [
-    (validator_bool_kwargs, {'__all__': ['PH']}),
-    (validator_string_kwargs, {'__all__': ['should be positive']}),
-    (validator_list_kwargs, {'__all__': ['should be', 'positive']}),
-    (validator_dict_kwargs, {'ab': ['should be positive']}),
-    (validator_raise_kwargs, {'__all__': ['should be positive']}),
+    (lambda a, b: a > 0 and b > 0, [vaa.Error(message='PH')]),
+    (validator_bool_kwargs, [vaa.Error(message='PH')]),
+    (validator_string_kwargs, [vaa.Error(message='should be positive')]),
+    (validator_list_kwargs, [vaa.Error(message='should be'), vaa.Error(message='positive')]),
+    (validator_dict_kwargs, [vaa.Error(message='should be positive', field='ab')]),
+    (validator_raise_kwargs, [vaa.Error(message='should be positive')]),
 
-    (validator_bool_container, {'__all__': ['PH']}),
-    (validator_string_container, {'__all__': ['should be positive']}),
-    (validator_dict_container, {'ab': ['should be positive']}),
-    (validator_raise_container, {'__all__': ['should be positive']}),
-    (validator_return_error_container, {'__all__': ['should be positive']}),
+    (validator_bool_container, [vaa.Error(message='PH')]),
+    (validator_string_container, [vaa.Error(message='should be positive')]),
+    (validator_dict_container, [vaa.Error(message='should be positive', field='ab')]),
+    (validator_raise_container, [vaa.Error(message='should be positive')]),
+    (validator_return_error_container, [vaa.Error(message='should be positive')]),
 ])
 def test_simple_validator(validator, errors):
     wrapped = vaa.simple(validator, error='PH')
