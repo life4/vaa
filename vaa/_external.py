@@ -6,7 +6,7 @@ Use this classes as wrappers for non-djburger validators
 from ._django_utils import safe_model_to_dict
 
 
-class _BaseWrapper:
+class BaseWrapper:
 
     def __init__(self, validator):
         self.validator = validator
@@ -19,7 +19,7 @@ class _BaseWrapper:
         return obj
 
 
-class Django(_BaseWrapper):
+class Django(BaseWrapper):
     """Wrapper for use Django Form (or ModelForm) as validator.
     """
 
@@ -28,7 +28,7 @@ class Django(_BaseWrapper):
         return obj
 
 
-class Marshmallow(_BaseWrapper):
+class Marshmallow(BaseWrapper):
     """Wrapper for use marshmallow scheme as validator.
     """
 
@@ -52,7 +52,7 @@ class Marshmallow(_BaseWrapper):
         return not self.errors
 
 
-class PySchemes(_BaseWrapper):
+class PySchemes(BaseWrapper):
     """Wrapper for use PySchemes as validator.
     """
 
@@ -71,7 +71,7 @@ class PySchemes(_BaseWrapper):
         return True
 
 
-class Cerberus(_BaseWrapper):
+class Cerberus(BaseWrapper):
     """Wrapper for use Cerberus as validator.
     """
 
@@ -93,7 +93,7 @@ class DummyMultyDict(dict):
         return [self[name]]
 
 
-class WTForms(_BaseWrapper):
+class WTForms(BaseWrapper):
     """Wrapper for use WTForms form as validator.
     """
 
@@ -117,7 +117,7 @@ class WTForms(_BaseWrapper):
         return self.data
 
 
-class RESTFramework(_BaseWrapper):
+class RESTFramework(BaseWrapper):
     """Wrapper for use Django REST Framework serializer as validator.
     """
 
