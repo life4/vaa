@@ -43,3 +43,8 @@ to = {format = "setuppy", path = "setup.py"}
 from = {format = "flit", path = "pyproject.toml"}
 envs = ["main", "tests", "validators"]
 command = "python -m pytest tests/"
+
+[tool.dephell.flake8]
+from = {format = "pip", path = "requirements-flake.txt"}
+python = ">=3.6"
+command = "flake8"
